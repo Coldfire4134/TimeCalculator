@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+      .main {
+        background: LightBlue;
+        border-radius: 5px;
+        margin: .5rem;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: fit-content;
+      }
+      .timeInputs {
+        border: 2px solid Blue;
+        border-radius: 5px;
+        display: flex;
+        flex-direction: row;
+        padding .2rem;
+      }
+      .timeInput {
+        display: flex;
+        flex-direction: column;
+        margin: .5rem;
+        padding: 1rem;
+      }
+      .right {
+        border-left: 2px solid Blue;
+        padding-left: 1.5rem;
+      }
+      .buttons {
+        display: flex;
+        flex-direction: row;
+      }
+      button {
+        margin: .3rem 1rem;
+        color: #F8F9FA;
+        border-radius: 3px;
+        background: #17A2B8;
+        padding: .3rem;
+        border-width: 0;
+      }
+      button:hover {
+        background: #0f6775;
+      }
+      button:active {
+        color: #0f6775;
+        background: #F8F9FA;
+      }
+      p {
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+</head>
+<body onkeypress="handleEnter(event)">
+	<div class="main">
+		<div class="timeInputs">
+			<div class="timeInput">
+				<label for="start">Start Time</label>
+				<input type="text" id="start" tabindex="1"  value=""/>
+        <div class="pminput">
+  				<label for="startPM">PM</label>
+  				<input type="checkbox" id="startPM" />
+        </div>
+			</div>
+			<div class="timeInput right">
+				<label for="end">End Time</label>
+				<input type="text" value="" tabindex="2" id="end" />
+        <div class="pminput">
+          <label for="endPM">PM</label>
+  				<input type="checkbox" id="endPM" />
+        </div>
+
+			</div>
+		</div>
+		<div class="buttons">
+			<button type="button" tabindex="3" onclick="calculate();">Calculate</button>
+			<button type="button" onclick="clearFields();">Clear</button>
+		</div>
+		<p id="output"></p>
+	</div>
+
+  <script>
+
+    function handleEnter(e) {
+      if (e.key === 'Enter') {
+        calculate();
+      }
+    }
+
+		function getQuarters(minutes, decimal) {
+			if (minutes < 15 || isNaN(minutes)) {
+				if (minutes > 7) {
+					decimal += .25;
+				}
+				return decimal;
+			}
+			return getQuarters(minutes - 15, decimal + .25);
+		}
+    function clearFields() {
+      console.log('Araadda');
+      console.log("clearing ", document.getElementById('start'), document.getElementById('end'))
+			document.getElementById('start').value = '';
+			document.getElementById('end').value = '';
+		}
+
+
+		const calculate = () => {
+      const validSplits = ['.', ':'];
+			let start = document.getElementById('start').value;
+			let end = document.getElementById('end').value;
+			let startTime = start.split('.');
+      for (let i = 1; startTime.length === 1 && i < validSplits.length; i++) {
+        startTime = start.split(validSplits[i]);
+      }
+			let endTime = end.split('.');
+      for (let i = 1; endTime.length === 1 && i < validSplits.length; i++) {
+        endTime = end.split(validSplits[i]);
+      }
+			let startPM = document.getElementById('startPM');
+			let endPM = document.getElementById('endPM');
+
+      // check if empty
+      if (start === '' || end === '') {
+        return;
+      }
+
+			if (startPM.checked) {
+				startTime[0]  = Number(startTime[0]) + 12;;
+			}
+			if (endPM.checked) {
+				endTime[0] = Number(endTime[0]) + 12;
+			}
+
+			let minuteDiff = endTime[1] - startTime[1];
+			let hourDiff = endTime[0] - startTime[0];
+			if (minuteDiff < 0) {
+				hourDiff--;
+				minuteDiff = 60 + minuteDiff;
+			}
+      let hours = (hourDiff - 1 + getQuarters(minuteDiff, 0)) || 'Invalid';
+			document.getElementById('output').innerHTML = `${hours} hours`
+
+		};
+
+	</script>
+</body>
+</html>
